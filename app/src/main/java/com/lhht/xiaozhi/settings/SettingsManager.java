@@ -24,7 +24,7 @@ public class SettingsManager {
     }
     
     public String getWsUrl() {
-        return preferences.getString(KEY_WS_URL, "ws://localhost:9005");
+        return preferences.getString(KEY_WS_URL, "wss://api.tenclass.net/xiaozhi/v1/");
     }
     
     public String getToken() {
