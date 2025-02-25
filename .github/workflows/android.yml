@@ -1,43 +1,49 @@
-name: Android CI
+name: Android Build
 
 on:
+  # 当有代码推送到main分支时触发工作流
   push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
-  workflow_dispatch:  # 允许手动触发
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: 设置JDK
-      uses: actions/setup-java@v3
-      with:
-        distribution: 'temurin'
-        java-version: '17'  # 根据您项目需要的Java版本调整
-    
-    - name: 设置Gradle权限
-      run: chmod +x ./gradlew
-    
-    - name: 使用Gradle构建
-      run: ./gradlew assembleDebug
-    
-    - name: 上传Debug APK
-      uses: actions/upload-artifact@v3
-      with:
-        name: app-debug
-        path: app/build/outputs/apk/debug/app-debug.apk
-    
-    # 如果需要构建Release版本（需要签名配置）
-    # - name: 构建Release APK
-    #   run: ./gradlew assembleRelease
-    
-    # - name: 上传Release APK
-    #   uses: actions/upload-artifact@v3
-    #   with:
-    #     name: app-release
-    #     path: app/build/outputs/apk/release/app-release.apk
+      # 检出代码
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 设置Java环境
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+
+      # 授予gradlew执行权限
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      # 构建Debug APK
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug
+
+      # 上传Debug APK作为工件
+      - name: Upload Debug APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+
+      # 构建Release APK
+      - name: Build Release APK
+        run: ./gradlew assembleRelease
+
+      # 上传Release APK作为工件
+      - name: Upload Release APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: release-apk
+          path: app/build/outputs/apk/release/app-release.apk
