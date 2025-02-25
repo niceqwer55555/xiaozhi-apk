@@ -26,7 +26,6 @@ public class WebSocketManager {
     private boolean enableToken;
     private boolean isReconnecting = false;
     private static final int RECONNECT_DELAY = 3000; // 3秒后重连
-    private String sessionId;
 
     public interface WebSocketListener {
         void onConnected();
@@ -51,9 +50,7 @@ public class WebSocketManager {
         
         try {
             Map<String, String> headers = new HashMap<>();
-            headers.put("Protocol-Version", "1");
-            headers.put("Device-Id", deviceId);
-            headers.put("Client-Id", deviceId);
+            headers.put("device-id", deviceId);
             if (enableToken && token != null && !token.isEmpty()) {
                 headers.put("Authorization", "Bearer " + token);
             }
@@ -86,30 +83,11 @@ public class WebSocketManager {
                 @Override
                 public void onMessage(String message) {
                     Log.d(TAG, "Received message: " + message);
-                    try {
-                        JSONObject jsonMessage = new JSONObject(message);
-                        String type = jsonMessage.getString("type");
-                        
-                        if ("hello".equals(type)) {
-                            // 保存session_id
-                            if (jsonMessage.has("session_id")) {
-                                sessionId = jsonMessage.getString("session_id");
-                            }
-                        } else if ("goodbye".equals(type)) {
-                            // 清除session_id
-                            if (sessionId != null && sessionId.equals(jsonMessage.optString("session_id"))) {
-                                sessionId = null;
-                            }
+                    mainHandler.post(() -> {
+                        if (listener != null) {
+                            listener.onMessage(message);
                         }
-                        
-                        mainHandler.post(() -> {
-                            if (listener != null) {
-                                listener.onMessage(message);
-                            }
-                        });
-                    } catch (JSONException e) {
-                        Log.e(TAG, "Error parsing message", e);
-                    }
+                    });
                 }
 
                 @Override
@@ -153,7 +131,7 @@ public class WebSocketManager {
         try {
             JSONObject hello = new JSONObject();
             hello.put("type", "hello");
-            hello.put("version", 1);
+            hello.put("version", 3);
             hello.put("transport", "websocket");
             
             JSONObject audioParams = new JSONObject();
@@ -190,9 +168,5 @@ public class WebSocketManager {
         if (client != null && client.isOpen()) {
             client.send(data);
         }
-    }
-
-    public String getSessionId() {
-        return sessionId;
     }
 } 

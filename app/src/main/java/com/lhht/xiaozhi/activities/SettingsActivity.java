@@ -15,6 +15,7 @@ public class SettingsActivity extends AppCompatActivity {
     private EditText wsUrlInput;
     private EditText tokenInput;
     private Switch enableTokenSwitch;
+    private EditText deviceIdInput;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +34,9 @@ public class SettingsActivity extends AppCompatActivity {
         tokenInput.setText(settingsManager.getToken());
         enableTokenSwitch.setChecked(settingsManager.isTokenEnabled());
 
+        deviceIdInput = findViewById(R.id.deviceIdInput);
+        deviceIdInput.setText(settingsManager.getDeviceId(this));
+
         // 根据Token开关状态更新Token输入框状态
         updateTokenInputState();
         enableTokenSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> updateTokenInputState());
@@ -42,8 +46,10 @@ public class SettingsActivity extends AppCompatActivity {
             String wsUrl = wsUrlInput.getText().toString();
             String token = tokenInput.getText().toString();
             boolean enableToken = enableTokenSwitch.isChecked();
+            String deviceId = deviceIdInput.getText().toString();
 
             settingsManager.saveSettings(wsUrl, token, enableToken);
+            settingsManager.saveDeviceId(deviceId);
             finish();
         });
     }

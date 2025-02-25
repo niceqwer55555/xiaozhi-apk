@@ -95,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements WebSocketManager.
 
         // 初始化
         settingsManager = new SettingsManager(this);
-        String deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+        String deviceId = settingsManager.getDeviceId(this);
         Log.i("MainActivity", "设备ID: " + deviceId);
         webSocketManager = new WebSocketManager(deviceId);
         webSocketManager.setListener(this);
@@ -201,10 +201,7 @@ public class MainActivity extends AppCompatActivity implements WebSocketManager.
             JSONObject startMessage = new JSONObject();
             startMessage.put("type", "listen");
             startMessage.put("state", "start");
-            startMessage.put("mode", "auto");  // 使用自动模式
-            if (webSocketManager.getSessionId() != null) {
-                startMessage.put("session_id", webSocketManager.getSessionId());
-            }
+            startMessage.put("mode", "auto");
             webSocketManager.sendMessage(startMessage.toString());
         } catch (JSONException e) {
             Log.e("XiaoZhi-Voice", "发送开始通话消息失败: " + e.getMessage());
@@ -292,9 +289,7 @@ public class MainActivity extends AppCompatActivity implements WebSocketManager.
             JSONObject stopMessage = new JSONObject();
             stopMessage.put("type", "listen");
             stopMessage.put("state", "stop");
-            if (webSocketManager.getSessionId() != null) {
-                stopMessage.put("session_id", webSocketManager.getSessionId());
-            }
+            stopMessage.put("mode", "auto");
             webSocketManager.sendMessage(stopMessage.toString());
         } catch (JSONException e) {
             Log.e("XiaoZhi-Voice", "发送停止通话消息失败: " + e.getMessage());
@@ -524,18 +519,5 @@ public class MainActivity extends AppCompatActivity implements WebSocketManager.
         }
         executorService.shutdown();
         audioExecutor.shutdown();
-    }
-
-    private void abortCurrentDialog() {
-        try {
-            JSONObject abortMessage = new JSONObject();
-            abortMessage.put("type", "abort");
-            if (webSocketManager.getSessionId() != null) {
-                abortMessage.put("session_id", webSocketManager.getSessionId());
-            }
-            webSocketManager.sendMessage(abortMessage.toString());
-        } catch (JSONException e) {
-            Log.e("XiaoZhi-Voice", "发送中断消息失败: " + e.getMessage());
-        }
     }
 } 
