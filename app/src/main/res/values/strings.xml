@@ -18,4 +18,5 @@
     <string name="start_call">开始通话</string>
     <string name="end_call">结束通话</string>
     <string name="calling">通话中...</string>
+    <string name="device_id">设备ID</string>
 </resources> 
