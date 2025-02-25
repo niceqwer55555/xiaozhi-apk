@@ -1,0 +1,43 @@
+name: Android CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: 设置JDK
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '17'  # 根据您项目需要的Java版本调整
+    
+    - name: 设置Gradle权限
+      run: chmod +x ./gradlew
+    
+    - name: 使用Gradle构建
+      run: ./gradlew assembleDebug
+    
+    - name: 上传Debug APK
+      uses: actions/upload-artifact@v3
+      with:
+        name: app-debug
+        path: app/build/outputs/apk/debug/app-debug.apk
+    
+    # 如果需要构建Release版本（需要签名配置）
+    # - name: 构建Release APK
+    #   run: ./gradlew assembleRelease
+    
+    # - name: 上传Release APK
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #     name: app-release
+    #     path: app/build/outputs/apk/release/app-release.apk
