@@ -1,6 +1,7 @@
 name: Android Build
 
 on:
+  workflow_dispatch:
   # 当有代码推送到main分支时触发工作流
   push:
     branches:
